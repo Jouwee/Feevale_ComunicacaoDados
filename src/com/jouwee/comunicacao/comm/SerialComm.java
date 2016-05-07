@@ -21,6 +21,7 @@ public class SerialComm implements SerialPortEventListener {
     private final Object lock;
     /** Bytes lidos */
     private byte[] readBytes;
+    
 
     /**
      * Cria nova comunicação serial
