@@ -107,26 +107,12 @@ public class SerialComm implements SerialPortEventListener {
                     byte[] bytes = new byte[Package.PACKAGE_SIZE];
                     port.getInputStream().read(bytes);
                     Package pack = Package.fromRaw(bytes);
-                    System.out.println("Package received");
-                    System.out.println("  Part: " + pack.getPart());
-                    System.out.println("  PtCt: " + pack.getPartCount());
-                    System.out.println("  Data: " + toString(pack.getData()));
-                    System.out.println("  CRC : " + pack.getCrc());
-                    if (pack.getPart() != packages.size()) {
-                        System.out.println("INVALID PACKAGE INDEX");
-                    }
-                    if (!CRC.check(pack)) {
-                        System.out.println("INVALID CRC EXPECTING " + CRC.get(pack));
-                    }
                     packages.add(pack);
                     if (pack.getPart() == pack.getPartCount() - 1) {
                         break;
                     }
                 }
                 readBytes = Package.restore(packages.toArray(new Package[]{}));
-                
-                System.out.println("String read: '" + new String(readBytes) + "'");
-                
                 synchronized(lock) {
                     lock.notify();
                 }

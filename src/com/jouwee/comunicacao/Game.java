@@ -20,6 +20,8 @@ public abstract class Game {
     private Player playerServer;
     /** Jogador do cliente */
     private Player playerClient;
+    /** Mapa */
+    private GameMap map;
     /** Contexto de atualização do jogo */
     private final UpdateContext context;
 
@@ -78,13 +80,16 @@ public abstract class Game {
      */
     public void init() {
         playerServer = new Player();
-        playerServer.setPosition(50, 50);
+        playerServer.setPosition(2, 2);
         playerServer.setColor(Color.RED);
         playerServer.setKeyScheme(Player.KEY_SCHEME_0);
         playerClient = new Player();
-        playerClient.setPosition(200, 50);
+        playerClient.setPosition(4, 2);
         playerClient.setColor(Color.BLUE);
         playerClient.setKeyScheme(Player.KEY_SCHEME_1);
+        map = new GameMap();
+        MapLoader.load(map, "map.png");
+        context.setMap(map);
     }
     
     /**
@@ -114,6 +119,9 @@ public abstract class Game {
         Graphics2D g2d = (Graphics2D) g.create();
         g2d.setColor(Color.WHITE);
         g2d.fill(g2d.getClip());
+        if (map != null) {
+            map.render(g2d);
+        }
         if (playerServer != null) {
             playerServer.render(g2d);
             playerClient.render(g2d);

@@ -19,12 +19,22 @@ public class UpdateContext implements KeyEventDispatcher {
    
     /** Conjunto de teclas preesionadas */
     private final Set<Integer> pressedKeys;
+    /** Mapa */
+    private GameMap map;
 
     /**
      * Cria novo contexto de atualização
      */
     public UpdateContext() {
         this.pressedKeys = new HashSet<>();
+    }
+
+    public GameMap getMap() {
+        return map;
+    }
+
+    public void setMap(GameMap map) {
+        this.map = map;
     }
     
     /**

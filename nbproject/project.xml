@@ -4,9 +4,9 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/j2se-project/3">
             <name>Feevale_ComunicacaoDados</name>
-            <explicit-platform explicit-source-supported="true"/>
             <source-roots>
                 <root id="src.dir"/>
+                <root id="src.res.dir"/>
             </source-roots>
             <test-roots>
                 <root id="test.src.dir"/>
