@@ -62,4 +62,12 @@ public class GameMap {
         this.tiles = tiles;
     }
     
+    public int getWidth() {
+        return tiles.length;
+    }
+    public int getHeight() {
+        if (getWidth() == 0) return 0;
+        return tiles[0].length;
+    }
+    
 }

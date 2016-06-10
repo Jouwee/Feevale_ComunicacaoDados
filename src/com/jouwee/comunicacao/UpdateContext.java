@@ -20,7 +20,7 @@ public class UpdateContext implements KeyEventDispatcher {
     /** Conjunto de teclas preesionadas */
     private final Set<Integer> pressedKeys;
     /** Mapa */
-    private GameMap map;
+    private Game game;
 
     /**
      * Cria novo contexto de atualização
@@ -29,12 +29,12 @@ public class UpdateContext implements KeyEventDispatcher {
         this.pressedKeys = new HashSet<>();
     }
 
-    public GameMap getMap() {
-        return map;
+    public Game getGame() {
+        return game;
     }
 
-    public void setMap(GameMap map) {
-        this.map = map;
+    public void setGame(Game game) {
+        this.game = game;
     }
     
     /**

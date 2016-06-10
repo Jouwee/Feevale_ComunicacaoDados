@@ -4,6 +4,9 @@ import com.jouwee.comunicacao.comm.SerialComm;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.event.EventListenerList;
 
 /**
  * Classe com o estado do jogo
@@ -12,6 +15,7 @@ import java.awt.Graphics2D;
  */
 public abstract class Game {
 
+    private final EventListenerList listenerList = new EventListenerList();
     /** Comunicação serial */
     private final SerialComm serialComm;
     /** Repainter */
@@ -20,6 +24,7 @@ public abstract class Game {
     private Player playerServer;
     /** Jogador do cliente */
     private Player playerClient;
+    private List<Bullet> bullets;
     /** Mapa */
     private GameMap map;
     /** Contexto de atualização do jogo */
@@ -32,6 +37,7 @@ public abstract class Game {
      */
     public Game(SerialComm serialComm) {
         context = new UpdateContext();
+        bullets = new ArrayList<>();
         this.serialComm = serialComm;
     }
     
@@ -70,7 +76,8 @@ public abstract class Game {
             while (true) {
                 sendData();
                 receiveData();
-                Thread.sleep(30);
+//                Thread.sleep(30);
+                fireGameSynched();
             }
         } catch (Exception e) {e.printStackTrace();}
     }
@@ -89,7 +96,7 @@ public abstract class Game {
         playerClient.setKeyScheme(Player.KEY_SCHEME_1);
         map = new GameMap();
         MapLoader.load(map, "map.png");
-        context.setMap(map);
+        context.setGame(this);
     }
     
     /**
@@ -98,7 +105,15 @@ public abstract class Game {
     public void update() {
         playerServer.update(context);
         playerClient.update(context);
+        for (Bullet bullet : bullets) {
+            bullet.update(context);
+        }
     }
+    
+    public void addBullet(Bullet bullet) {
+        bullets.add(bullet);
+    }
+        
     
     /**
      * Sincroniza o estado do jogo
@@ -122,11 +137,24 @@ public abstract class Game {
         if (map != null) {
             map.render(g2d);
         }
+        for (Bullet bullet : bullets) {
+            bullet.render(g2d);
+        }
         if (playerServer != null) {
             playerServer.render(g2d);
             playerClient.render(g2d);
-        }
+        }         
         g2d.dispose();
+    }
+    
+    public void addGameSynchedListener(GameSynchedListener l) {
+        listenerList.add(GameSynchedListener.class, l);
+    }
+    
+    public void fireGameSynched() {
+        for (GameSynchedListener listener : listenerList.getListeners(GameSynchedListener.class)) {
+            listener.gameSynched();
+        }
     }
 
     /**
@@ -181,6 +209,10 @@ public abstract class Game {
      */
     public SerialComm getSerialComm() {
         return serialComm;
+    }
+
+    public GameMap getMap() {
+        return map;
     }
 
 }

@@ -14,6 +14,8 @@ public class Player extends Entity {
 
     public static final float SPEED = 0.02f;
     public static final int SIZE = 48;
+    public static final int LEFT = 0;
+    public static final int RIGHT = 1;
     public static final int KEY_JUMP = 0;
     public static final int KEY_LEFT = 1;
     public static final int KEY_RIGHT = 2;
@@ -26,6 +28,7 @@ public class Player extends Entity {
     private Color color;
     /** Cor do jogador */
     private int[] keyScheme;
+    private int facing;
     
     /**
      * Cria um novo jogador
@@ -41,10 +44,23 @@ public class Player extends Entity {
         if (context.isPressed(keyScheme[KEY_LEFT])) {
             vector = vector.add((float) -SPEED, 0);
             friction = 1;
+            setFacing(LEFT);
         }
         if (context.isPressed(keyScheme[KEY_RIGHT])) {
             vector = vector.add((float) SPEED, 0);
             friction = 1;
+            setFacing(RIGHT);
+        }
+        if (context.isPressed(keyScheme[KEY_SHOOT])) {
+            Bullet bullet = new Bullet();
+            if (facing == LEFT) {
+                bullet.setX(getX());
+            } else {
+                bullet.setX(getX()  + 1);
+            }
+            bullet.setY(getY() + 0.5f);
+            bullet.setDirection(facing);
+            context.getGame().addBullet(bullet);
         }
         if (context.isPressed(keyScheme[KEY_JUMP]) && isContactBelow(context)) {
             vector = vector.add(0, (float) -.4);
@@ -70,12 +86,12 @@ public class Player extends Entity {
             iy++;
         }
         ix = (int) Math.floor(getX() + 0.1);
-        if (context.getMap().getTile(ix, iy).isSolid()) {
+        if (context.getGame().getMap().getTile(ix, iy).isSolid()) {
             return true;
         }
         
         ix = (int) Math.floor(getX() + 0.9);
-        if (context.getMap().getTile(ix, iy).isSolid()) {
+        if (context.getGame().getMap().getTile(ix, iy).isSolid()) {
             return true;
         }
         return false;
@@ -88,11 +104,11 @@ public class Player extends Entity {
             iy++;
         }
         ix = (int) Math.floor(getX() + 0.1);
-        if (context.getMap().getTile(ix, iy).isSolid()) {
+        if (context.getGame().getMap().getTile(ix, iy).isSolid()) {
             return true;
         }
         ix = (int) Math.floor(getX() + 0.9);
-        if (context.getMap().getTile(ix, iy).isSolid()) {
+        if (context.getGame().getMap().getTile(ix, iy).isSolid()) {
             return true;
         }
         return false;
@@ -105,11 +121,11 @@ public class Player extends Entity {
             ix++;
         }
         iy = (int) Math.floor(getY() + 0.1);
-        if (context.getMap().getTile(ix, iy).isSolid()) {
+        if (context.getGame().getMap().getTile(ix, iy).isSolid()) {
             return true;
         }
         iy = (int) Math.floor(getY() + 0.9);
-        if (context.getMap().getTile(ix, iy).isSolid()) {
+        if (context.getGame().getMap().getTile(ix, iy).isSolid()) {
             return true;
         }
         return false;
@@ -122,11 +138,11 @@ public class Player extends Entity {
             ix++;
         }
         iy = (int) Math.floor(getY() + 0.1);
-        if (context.getMap().getTile(ix, iy).isSolid()) {
+        if (context.getGame().getMap().getTile(ix, iy).isSolid()) {
             return true;
         }
         iy = (int) Math.floor(getY() + 0.9);
-        if (context.getMap().getTile(ix, iy).isSolid()) {
+        if (context.getGame().getMap().getTile(ix, iy).isSolid()) {
             return true;
         }
         return false;
@@ -137,6 +153,12 @@ public class Player extends Entity {
         Graphics2D g2d = (Graphics2D) g.create();
         g2d.setColor(color);
         g2d.fillRect((int) (getX() * SIZE), (int) (getY() * SIZE), SIZE, SIZE);
+        g2d.setColor(Color.GREEN);
+        if (facing == RIGHT) {
+            g2d.fillRect((int) (getX() * SIZE) + SIZE, (int) (getY() * SIZE) + SIZE/2, 3, 3);
+        } else {
+            g2d.fillRect((int) (getX() * SIZE) - 3, (int) (getY() * SIZE) + SIZE/2, 3, 3);
+        }
         g2d.dispose();
     }
 
@@ -192,6 +214,14 @@ public class Player extends Entity {
      */
     public void setKeyScheme(int[] keyScheme) {
         this.keyScheme = keyScheme;
+    }
+
+    public int getFacing() {
+        return facing;
+    }
+
+    public void setFacing(int facing) {
+        this.facing = facing;
     }
     
 }
