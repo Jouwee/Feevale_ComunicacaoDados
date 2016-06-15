@@ -28,6 +28,7 @@ public class GameServer extends Game {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream out = new ObjectOutputStream(baos);
             out.writeObject(getPlayerServer());
+            out.writeObject(getBullets());
             out.close();
             getSerialComm().send(baos.toByteArray());
         } catch (Exception e) {
@@ -45,6 +46,8 @@ public class GameServer extends Game {
             
             getPlayerClient().setPosition(p1.getX(), p1.getY());
             getPlayerClient().setVector(p1.getVector());
+            getPlayerClient().setLife(p1.getLife());
+            getPlayerClient().setFacing(p1.getFacing());
             
         } catch (Exception e) {
             e.printStackTrace();

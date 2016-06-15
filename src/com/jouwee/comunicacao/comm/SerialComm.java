@@ -1,5 +1,6 @@
 package com.jouwee.comunicacao.comm;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -21,6 +22,7 @@ public class SerialComm implements SerialPortEventListener {
     private final Object lock;
     /** Bytes lidos */
     private byte[] readBytes;
+    private List<PackageListener> listeners;
     
 
     /**
@@ -29,6 +31,7 @@ public class SerialComm implements SerialPortEventListener {
      * @param port
      */
     public SerialComm(SerialPort port) {
+        listeners = new ArrayList<>();
         this.port = port;
         try {
             port.setSerialPortParams(115200, port.DATABITS_8, port.STOPBITS_2, port.PARITY_NONE);
@@ -59,8 +62,15 @@ public class SerialComm implements SerialPortEventListener {
      */
     public void send(Package pack) {
         try {
+            if (pack == null) {
+                System.out.println("null pack");
+                return;
+            }
             port.getOutputStream().write(pack.getRaw());
             port.getOutputStream().flush();
+            for (PackageListener listener : listeners) {
+                listener.packageSent(pack);
+            }
         } catch (Exception ex) {
             Logger.getLogger(SerialComm.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -108,6 +118,9 @@ public class SerialComm implements SerialPortEventListener {
                     port.getInputStream().read(bytes);
                     Package pack = Package.fromRaw(bytes);
                     packages.add(pack);
+                    for (PackageListener listener : listeners) {
+                        listener.packageReceived(pack);
+                    }
                     if (pack.getPart() == pack.getPartCount() - 1) {
                         break;
                     }
@@ -129,6 +142,9 @@ public class SerialComm implements SerialPortEventListener {
         }
         return sb.toString();
     }
-    
+
+    public void addListener(PackageListener listener) {
+        listeners.add(listener);
+    }
 
 }

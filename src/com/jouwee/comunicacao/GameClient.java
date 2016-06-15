@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package com.jouwee.comunicacao;
 
 import com.jouwee.comunicacao.comm.SerialComm;
@@ -11,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.List;
 
 /**
  *
@@ -50,9 +45,12 @@ public class GameClient extends Game {
             ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
             ObjectInputStream ois = new ObjectInputStream(bais);
             Player p1 = (Player) ois.readObject();
+            List<Bullet> bullets = (List<Bullet>) ois.readObject();
             
             getPlayerServer().setPosition(p1.getX(), p1.getY());
             getPlayerServer().setVector(p1.getVector());
+            getPlayerServer().setLife(p1.getLife());
+            getPlayerServer().setFacing(p1.getFacing());
 
         } catch (Exception e) {
             e.printStackTrace();

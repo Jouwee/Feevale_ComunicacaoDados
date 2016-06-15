@@ -4,6 +4,8 @@ import com.jouwee.comunicacao.comm.SerialComm;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.event.EventListenerList;
@@ -105,7 +107,7 @@ public abstract class Game {
     public void update() {
         playerServer.update(context);
         playerClient.update(context);
-        for (Bullet bullet : bullets) {
+        for (Bullet bullet : new ArrayList<>(bullets)) {
             bullet.update(context);
         }
     }
@@ -113,7 +115,10 @@ public abstract class Game {
     public void addBullet(Bullet bullet) {
         bullets.add(bullet);
     }
-        
+    
+    public void removeBullet(Bullet bullet) {
+        bullets.remove(bullet);
+    }
     
     /**
      * Sincroniza o estado do jogo
@@ -137,13 +142,36 @@ public abstract class Game {
         if (map != null) {
             map.render(g2d);
         }
-        for (Bullet bullet : bullets) {
+        for (Bullet bullet : new ArrayList<>(bullets)) {
             bullet.render(g2d);
         }
         if (playerServer != null) {
             playerServer.render(g2d);
             playerClient.render(g2d);
         }         
+        renderGui(g2d);
+        g2d.dispose();
+    }
+    
+    public void renderGui(Graphics g) {
+        int barSize = 200;
+        Graphics2D g2d = (Graphics2D) g.create();
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setColor(Color.WHITE);
+        int h = g2d.getClipBounds().height;
+        int w = g2d.getClipBounds().width;
+        //
+        g2d.setColor(playerServer.getColor());
+        float lifePct = (float)playerServer.getLife() / Player.MAX_HEALTH;
+        g2d.fillPolygon(new int[] {5, 5 + (int)(barSize * lifePct), 5 + (int)(barSize * lifePct)-15, 5}, new int[] {h - 30, h - 30, h - 5, h - 5}, 4);
+        g2d.setColor(Color.WHITE);
+        g2d.drawPolygon(new int[] {5, 5 + barSize, 5 + barSize-15, 5}, new int[] {h - 30, h - 30, h - 5, h - 5}, 4);
+        //
+        g2d.setColor(playerClient.getColor());
+        lifePct = (float)playerClient.getLife() / Player.MAX_HEALTH;
+        g2d.fillPolygon(new int[] {w - 5, w - 5 - (int)(barSize * lifePct), w - 5 - (int)(barSize * lifePct)-15, w - 5}, new int[] {h - 30, h - 30, h - 5, h - 5}, 4);
+        g2d.setColor(Color.WHITE);
+        g2d.drawPolygon(new int[] {w - 5, w - 5 - barSize, w - 5 - barSize-15, w - 5}, new int[] {h - 30, h - 30, h - 5, h - 5}, 4);
         g2d.dispose();
     }
     
@@ -209,6 +237,10 @@ public abstract class Game {
      */
     public SerialComm getSerialComm() {
         return serialComm;
+    }
+
+    public List<Bullet> getBullets() {
+        return bullets;
     }
 
     public GameMap getMap() {

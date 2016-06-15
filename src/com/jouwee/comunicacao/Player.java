@@ -12,7 +12,9 @@ import java.awt.Graphics2D;
  */
 public class Player extends Entity {
 
+    public static final int MAX_HEALTH = 100;
     public static final float SPEED = 0.02f;
+    public static final float FIRING_RATE = 2;
     public static final int SIZE = 48;
     public static final int LEFT = 0;
     public static final int RIGHT = 1;
@@ -21,7 +23,7 @@ public class Player extends Entity {
     public static final int KEY_RIGHT = 2;
     public static final int KEY_SHOOT = 3;
     public static final int[] KEY_SCHEME_0 = {KeyEvent.VK_W, KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_SPACE};
-    public static final int[] KEY_SCHEME_1 = {KeyEvent.VK_I, KeyEvent.VK_J, KeyEvent.VK_L, KeyEvent.VK_SPACE};
+    public static final int[] KEY_SCHEME_1 = {KeyEvent.VK_I, KeyEvent.VK_J, KeyEvent.VK_L, KeyEvent.VK_ENTER};
     /** Vetor de movimento do jogador */
     private Vector vector;
     /** Cor do jogador */
@@ -29,12 +31,15 @@ public class Player extends Entity {
     /** Cor do jogador */
     private int[] keyScheme;
     private int facing;
+    private long whenLastBulletShot = 0;
+    private int life;
     
     /**
      * Cria um novo jogador
      */
     public Player() {
         setPosition(50, 50);
+        setLife(100);
         vector = new Vector();
     }
     
@@ -52,15 +57,20 @@ public class Player extends Entity {
             setFacing(RIGHT);
         }
         if (context.isPressed(keyScheme[KEY_SHOOT])) {
-            Bullet bullet = new Bullet();
-            if (facing == LEFT) {
-                bullet.setX(getX());
-            } else {
-                bullet.setX(getX()  + 1);
+            long bulletInterval = System.currentTimeMillis() - whenLastBulletShot;
+            if (bulletInterval > 1000f / FIRING_RATE) {
+                Bullet bullet = new Bullet();
+                if (facing == LEFT) {
+                    bullet.setX(getX());
+                } else {
+                    bullet.setX(getX()  + 1);
+                }
+                bullet.setOwner(this);
+                bullet.setY(getY() + 0.5f);
+                bullet.setDirection(facing);
+                context.getGame().addBullet(bullet);
+                whenLastBulletShot = System.currentTimeMillis();
             }
-            bullet.setY(getY() + 0.5f);
-            bullet.setDirection(facing);
-            context.getGame().addBullet(bullet);
         }
         if (context.isPressed(keyScheme[KEY_JUMP]) && isContactBelow(context)) {
             vector = vector.add(0, (float) -.4);
@@ -222,6 +232,14 @@ public class Player extends Entity {
 
     public void setFacing(int facing) {
         this.facing = facing;
+    }
+
+    public int getLife() {
+        return life;
+    }
+
+    public void setLife(int life) {
+        this.life = life;
     }
     
 }
