@@ -107,7 +107,7 @@ public class SerialComm implements SerialPortEventListener {
         }
         return new byte[]{};
     }
-
+    
     @Override
     public void serialEvent(SerialPortEvent spe) {
         if (spe.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
@@ -144,6 +144,9 @@ public class SerialComm implements SerialPortEventListener {
     }
 
     public void addListener(PackageListener listener) {
+        if (listener == null) {
+            return;
+        }
         listeners.add(listener);
     }
 

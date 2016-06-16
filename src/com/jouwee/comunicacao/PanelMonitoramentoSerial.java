@@ -26,16 +26,15 @@ import javax.swing.table.TableModel;
  */
 public class PanelMonitoramentoSerial extends JPanel {
     
-    private final Game game;
-    private final SerialComm comm;
+    private Game game;
+    private SerialComm comm;
     private JLabel lUpdateRate;
+    private Updater updater;
+    private TheModel model;
 
-    public PanelMonitoramentoSerial(Game game, SerialComm comm) {
+    public PanelMonitoramentoSerial() {
         super();
-        this.comm = comm;
-        this.game = game;
-        Updater updater = new Updater();
-        game.addGameSynchedListener(updater);
+        updater = new Updater();
         initGui();
         updater.update();
     }
@@ -43,14 +42,13 @@ public class PanelMonitoramentoSerial extends JPanel {
     private void initGui() {
         setBorder(BorderFactory.createTitledBorder("Monitoramento serial"));
         setLayout(new BorderLayout());
-        add(buildPanelPacotes());
+//        add(buildPanelPacotes());
         add(buildPanelEstatisticas(), BorderLayout.WEST);
     }
     
     public JComponent buildPanelPacotes() {
         JTable table = new JTable();
-        TheModel model = new TheModel();
-        comm.addListener(model);
+        model = new TheModel();
         table.setModel(model);
         JScrollPane scroll = new JScrollPane(table);
         scroll.setPreferredSize(new Dimension(400, 60));
@@ -67,6 +65,16 @@ public class PanelMonitoramentoSerial extends JPanel {
     private JComponent buildLabelUpdateRate() {
         lUpdateRate = new JLabel();
         return lUpdateRate;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
+        game.addGameSynchedListener(updater);
+    }
+
+    public void setComm(SerialComm comm) {
+        this.comm = comm;
+        comm.addListener(model);
     }
         
     private class Updater implements GameSynchedListener {

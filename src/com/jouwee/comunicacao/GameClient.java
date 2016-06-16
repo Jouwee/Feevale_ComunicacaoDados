@@ -25,13 +25,11 @@ public class GameClient extends Game {
     @Override
     public void sendData() {
         try {
-
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream out = new ObjectOutputStream(baos);
             out.writeObject(getPlayerClient());
             out.close();
             getSerialComm().send(baos.toByteArray());
-            
         } catch (Exception e) {
             e.printStackTrace();
         }
