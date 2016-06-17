@@ -126,6 +126,9 @@ public class SerialComm implements SerialPortEventListener {
                     }
                 }
                 readBytes = Package.restore(packages.toArray(new Package[]{}));
+                for (PackageListener l : listeners) {
+                    l.bytesRead(readBytes);
+                }
                 synchronized(lock) {
                     lock.notify();
                 }

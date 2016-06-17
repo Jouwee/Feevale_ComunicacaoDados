@@ -28,6 +28,7 @@ public class GameServer extends Game {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream out = new ObjectOutputStream(baos);
             out.writeObject(getPlayerServer());
+            out.writeObject(getPlayerClient());
             out.writeObject(getBullets());
             out.close();
             getSerialComm().send(baos.toByteArray());
@@ -37,18 +38,19 @@ public class GameServer extends Game {
     }
 
     @Override
-    public void receiveData() {
+    public void dataReceived(byte[] bytes) {
         try {
-            byte[] bytes = getSerialComm().receive();
             ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
             ObjectInputStream ois = new ObjectInputStream(bais);
             Player p1 = (Player) ois.readObject();
+            Player p2 = (Player) ois.readObject();
             
             getPlayerClient().setPosition(p1.getX(), p1.getY());
             getPlayerClient().setVector(p1.getVector());
-            getPlayerClient().setLife(p1.getLife());
             getPlayerClient().setFacing(p1.getFacing());
             
+            getPlayerServer().setLife(p2.getLife());
+
         } catch (Exception e) {
             e.printStackTrace();
         }

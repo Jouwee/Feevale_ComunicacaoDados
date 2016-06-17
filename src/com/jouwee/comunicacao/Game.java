@@ -1,5 +1,7 @@
 package com.jouwee.comunicacao;
 
+import com.jouwee.comunicacao.comm.Package;
+import com.jouwee.comunicacao.comm.PackageListener;
 import com.jouwee.comunicacao.comm.SerialComm;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -61,6 +63,7 @@ public abstract class Game {
     public void gameLoop() {
         init();
         try {
+
             while (true) {
                 update();
                 repainter.run();
@@ -73,12 +76,19 @@ public abstract class Game {
      * Executa o jogo
      */
     public void synchLoop() {
-        init();
         try {
+            serialComm.addListener(new PackageListener() {
+                @Override public void packageSent(Package pack) { }
+                @Override public void packageReceived(Package pack) { }
+
+                @Override
+                public void bytesRead(byte[] bytes) {
+                    dataReceived(bytes);
+                }
+            });
             while (true) {
                 sendData();
-                receiveData();
-//                Thread.sleep(30);
+                Thread.sleep(1000 / 30);
                 fireGameSynched();
             }
         } catch (Exception e) {e.printStackTrace();}
@@ -127,8 +137,10 @@ public abstract class Game {
     
     /**
      * Sincroniza o estado do jogo
+     * 
+     * @param bytes
      */
-    public abstract void receiveData();
+    public abstract void dataReceived(byte[] bytes);
     
     /**
      * Renderiza o jogo

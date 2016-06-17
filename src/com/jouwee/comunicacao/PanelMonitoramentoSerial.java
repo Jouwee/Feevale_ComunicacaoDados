@@ -190,6 +190,10 @@ public class PanelMonitoramentoSerial extends JPanel {
         public void removeTableModelListener(TableModelListener l) {
             listeners.remove(l);
         }
+
+        @Override
+        public void bytesRead(byte[] bytes) {
+        }
         
     }
     
