@@ -4,10 +4,13 @@ import com.jouwee.comunicacao.comm.Package;
 import com.jouwee.comunicacao.comm.PackageListener;
 import com.jouwee.comunicacao.comm.SerialComm;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Polygon;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.event.EventListenerList;
@@ -29,6 +32,7 @@ public abstract class Game {
     /** Jogador do cliente */
     private Player playerClient;
     private List<Bullet> bullets;
+    private GameStatus status;
     /** Mapa */
     private GameMap map;
     /** Contexto de atualização do jogo */
@@ -109,16 +113,30 @@ public abstract class Game {
         map = new GameMap();
         MapLoader.load(map, "map.png");
         context.setGame(this);
+        status = GameStatus.RUNNING;
     }
     
     /**
      * Atualiza o estado do jogo
      */
     public void update() {
+        if (status != GameStatus.RUNNING) {
+            return;
+        }
         playerServer.update(context);
         playerClient.update(context);
         for (Bullet bullet : new ArrayList<>(bullets)) {
             bullet.update(context);
+        }
+        if (getPlayerServer().getLife() == 0 && getPlayerClient().getLife() == 0) {
+            status = GameStatus.OVER_TIE;
+        } else {
+            if (getPlayerServer().getLife() == 0) {
+                status = GameStatus.OVER_WINNER_CLIENT;
+            }
+            if (getPlayerClient().getLife() == 0) {
+                status = GameStatus.OVER_WINNER_SERVER;
+            }
         }
     }
     
@@ -162,6 +180,53 @@ public abstract class Game {
             playerClient.render(g2d);
         }         
         renderGui(g2d);
+        if (status != GameStatus.RUNNING) {
+            renderGameOver(g2d);
+        }
+        g2d.dispose();
+    }
+    
+    public void renderGameOver(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g.create();
+        Color background = null;
+        Color foreground = null;
+        String text = null;
+        if (status == GameStatus.OVER_TIE) {
+            background = new Color(0x80CCCCCC, true);
+            foreground = Color.BLACK;
+            text = "Empate";
+        }
+        if (status == GameStatus.OVER_WINNER_CLIENT) {
+            background = new Color(getPlayerClient().getColor().brighter().brighter().getRGB() & 0x50FFFFFF, true);
+            foreground = getPlayerClient().getColor().darker().darker();
+            text = "Jogador CLIENT ganhou!";
+        }
+        if (status == GameStatus.OVER_WINNER_SERVER) {
+            background = new Color(getPlayerServer().getColor().brighter().brighter().getRGB() & 0x50FFFFFF, true);
+            foreground = getPlayerServer().getColor().darker().darker();
+            text = "Jogador SERVER ganhou!";
+        }
+        g2d.setColor(background);
+        g2d.fill(g2d.getClip());
+        
+        Font fonte = new Font("Calibri", Font.BOLD, 60);
+        g2d.setFont(fonte);
+        FontMetrics fm = Toolkit.getDefaultToolkit().getFontMetrics(fonte);
+        
+        String gameOverText = "GAME OVER";
+        Rectangle2D rect = fm.getStringBounds(gameOverText, g);
+        
+        float w = (float) g2d.getClip().getBounds().getWidth();
+        
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2d.setColor(background);
+        g2d.fill(g2d.getClip());
+
+        g2d.setColor(foreground);
+        g2d.drawString(gameOverText, (int) ((w / 2) - (rect.getWidth()/ 2)), 250);
+        rect = fm.getStringBounds(text, g);
+        g2d.drawString(text, (int) ((w / 2) - (rect.getWidth() / 2)), 350);
+
         g2d.dispose();
     }
     
@@ -253,6 +318,21 @@ public abstract class Game {
 
     public List<Bullet> getBullets() {
         return bullets;
+    }
+
+    public List<Bullet> getBullets(Player player) {
+        List<Bullet>  ret = new ArrayList<>();
+        for (Bullet bullet : bullets) {
+            if (bullet.getOwner() == player) {
+                ret.add(bullet);
+            }
+        }
+        return ret;
+    }
+    
+    public void synchBullets(List<Bullet>  toSynch, Player player) {
+        bullets.removeAll(getBullets(player));
+        bullets.addAll(toSynch);
     }
 
     public GameMap getMap() {

@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.List;
 
 /**
  * Servidor do jogo
@@ -29,7 +30,7 @@ public class GameServer extends Game {
             ObjectOutputStream out = new ObjectOutputStream(baos);
             out.writeObject(getPlayerServer());
             out.writeObject(getPlayerClient());
-            out.writeObject(getBullets());
+            out.writeObject(getBullets(getPlayerServer()));
             out.close();
             getSerialComm().send(baos.toByteArray());
         } catch (Exception e) {
@@ -44,12 +45,15 @@ public class GameServer extends Game {
             ObjectInputStream ois = new ObjectInputStream(bais);
             Player p1 = (Player) ois.readObject();
             Player p2 = (Player) ois.readObject();
+            List<Bullet> bul = (List<Bullet>) ois.readObject();
             
             getPlayerClient().setPosition(p1.getX(), p1.getY());
             getPlayerClient().setVector(p1.getVector());
             getPlayerClient().setFacing(p1.getFacing());
             
             getPlayerServer().setLife(p2.getLife());
+            
+            synchBullets(bul, getPlayerClient());
 
         } catch (Exception e) {
             e.printStackTrace();

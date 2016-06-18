@@ -29,6 +29,7 @@ public class GameClient extends Game {
             ObjectOutputStream out = new ObjectOutputStream(baos);
             out.writeObject(getPlayerClient());
             out.writeObject(getPlayerServer());
+            out.writeObject(getBullets(getPlayerClient()));
             out.close();
             getSerialComm().send(baos.toByteArray());
         } catch (Exception e) {
@@ -52,6 +53,8 @@ public class GameClient extends Game {
 
             getPlayerClient().setLife(p2.getLife());
 
+            synchBullets(bullets, getPlayerServer());
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
