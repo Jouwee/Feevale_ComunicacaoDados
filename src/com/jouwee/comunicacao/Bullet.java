@@ -31,9 +31,10 @@ public class Bullet extends Entity {
         if (context.getGame().getMap().getTile((int) getX(), (int) getY()).isSolid()) {
             context.getGame().removeBullet(this);
         }
-        if (context.getGame().getPlayerClient() == owner) {
+        if (context.getGame().getPlayerClient() == owner && context.getGame() instanceof GameClient) {
             testCollision(context, context.getGame().getPlayerServer(), oldX);
-        } else {
+        }
+        if (context.getGame().getPlayerServer() == owner && context.getGame() instanceof GameServer) {
             testCollision(context, context.getGame().getPlayerClient(), oldX);
         }
         

@@ -14,7 +14,7 @@ public class Player extends Entity {
 
     public static final int MAX_HEALTH = 100;
     public static final float SPEED = 0.02f;
-    public static final float FIRING_RATE = 2;
+    public static final float FIRING_RATE = 5;
     public static final int SIZE = 48;
     public static final int LEFT = 0;
     public static final int RIGHT = 1;
